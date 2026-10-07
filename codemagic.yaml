@@ -1,0 +1,23 @@
+workflows:
+  ios-release:
+    name: AEM iOS
+    instance_type: mac_mini_m2
+    environment:
+      node: 22.14.0
+      xcode: latest
+    scripts:
+      - name: Install dependencies
+        script: npm install
+      - name: Create iOS project
+        script: npx cap add ios || true
+      - name: Sync AEM into iOS project
+        script: npx cap sync ios
+      - name: Build unsigned iOS app
+        script: |
+          xcode-project build-ipa \
+            --workspace "ios/App/App.xcworkspace" \
+            --scheme "App" \
+            --archive-flags="-allowProvisioningUpdates" \
+            --export-options-plist="/tmp/exportOptions.plist"
+    artifacts:
+      - build/ios/ipa/*.ipa
